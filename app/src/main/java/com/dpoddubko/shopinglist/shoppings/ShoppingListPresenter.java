@@ -67,7 +67,8 @@ public class ShoppingListPresenter implements Presenter {
     public void setCompleted(int id, boolean completed) {
         Completable.fromAction(() -> model.setCompleted(id, completed))
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io()).subscribe(
+                .subscribeOn(Schedulers.io())
+                .subscribe(
                 this::loadList, t -> view.showError(t));
     }
 
