@@ -19,7 +19,7 @@ import butterknife.ButterKnife;
 import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
 
-public class ShoppingListActivity extends AppCompatActivity implements View, ICardClickListener {
+public class ShoppingListActivity extends AppCompatActivity implements View {
 
     @Inject
     ShoppingListPresenter presenter;
@@ -32,20 +32,31 @@ public class ShoppingListActivity extends AppCompatActivity implements View, ICa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_shopping_list);
         ButterKnife.bind(this);
-        adapter = new ShoppingAdapter(this);
+        adapter = new ShoppingAdapter(new ICardClickListener() {
+            @Override
+            public void onCheckClicked(int id, boolean b) {
+                presenter.setCompleted(id, b);
+            }
+
+            @Override
+            public void onCardClicked(int id) {
+                Toast.makeText(getApplicationContext(), "clicked cadrd with item id = " + id, Toast.LENGTH_SHORT)
+                .show();
+            }
+        });
         App.get(this).component().inject(this);
         init();
     }
 
     @OnClick(R.id.delete_btn)
     public void submitDelete(android.view.View view) {
-        if (!adapter.data.isEmpty())
-            presenter.delete(adapter.data.get(0));
+        if (!adapter.shoppingList.isEmpty())
+            presenter.delete(adapter.shoppingList.get(0));
     }
 
     @OnCheckedChanged(R.id.complete_chb)
     void onGenderSelected(CompoundButton button, boolean checked) {
-        if (!adapter.data.isEmpty())
+        if (!adapter.shoppingList.isEmpty())
             presenter.setAllAsCompleted(checked);
     }
 
@@ -72,7 +83,7 @@ public class ShoppingListActivity extends AppCompatActivity implements View, ICa
 
     @Override
     public void showList(List<Shopping> shoppings) {
-        adapter.setData(shoppings);
+        adapter.setShoppingList(shoppings);
     }
 
     @Override
@@ -84,16 +95,5 @@ public class ShoppingListActivity extends AppCompatActivity implements View, ICa
     protected void onDestroy() {
         super.onDestroy();
         presenter.destroy();
-    }
-
-    @Override
-    public void onCheckClicked(int id, boolean b) {
-        presenter.setCompleted(id, b);
-    }
-
-    @Override
-    public void onCardClicked(int id) {
-        Toast.makeText(this, "clicked cadrd with item id = " + id, Toast.LENGTH_SHORT)
-                .show();
     }
 }

@@ -1,5 +1,6 @@
 package com.dpoddubko.shopinglist.shoppings;
 
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,7 +26,7 @@ public class ShoppingAdapter extends RecyclerView.Adapter<ShoppingAdapter.Shoppi
 
     ICardClickListener listener;
 
-    List<Shopping> data = new ArrayList<>();
+    List<Shopping> shoppingList = new ArrayList<>();
 
     public ShoppingAdapter(ICardClickListener listener) {
         this.listener = listener;
@@ -34,22 +35,28 @@ public class ShoppingAdapter extends RecyclerView.Adapter<ShoppingAdapter.Shoppi
     @Override
     public ShoppingHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.purchase_card, parent, false);
-        return new ShoppingHolder(view, listener);
+        return new ShoppingHolder(view);
     }
 
     @Override
     public void onBindViewHolder(ShoppingHolder holder, int position) {
-        holder.bind(data.get(position));
+        holder.bind(shoppingList.get(position), listener);
     }
 
     @Override
     public int getItemCount() {
-        return data.size();
+        return shoppingList.size();
     }
 
-    public void setData(List<Shopping> users) {
-        data.clear();
-        data.addAll(users);
+    @Override
+    public void onViewRecycled(@NonNull ShoppingHolder holder) {
+        super.onViewRecycled(holder);
+        holder.complete.setOnCheckedChangeListener(null);
+    }
+
+    public void setShoppingList(List<Shopping> list) {
+        shoppingList.clear();
+        shoppingList.addAll(list);
         notifyDataSetChanged();
     }
 
@@ -60,22 +67,22 @@ public class ShoppingAdapter extends RecyclerView.Adapter<ShoppingAdapter.Shoppi
         TextView content;
         @BindView(R.id.shopping_photo)
         ImageView photo;
-        @BindView(R.id.complete_chb_item)
+        @BindView(R.id.shopping_complete_chb)
         CheckBox complete;
-        private ICardClickListener listener;
         private View v;
 
-        public ShoppingHolder(View v, ICardClickListener listener) {
+        public ShoppingHolder(View v) {
             super(v);
             ButterKnife.bind(this, v);
-            this.listener = listener;
             this.v = v;
         }
 
-        void bind(Shopping shopping) {
+        void bind(Shopping shopping, ICardClickListener listener) {
             title.setText(String.format("id: %s, title: %s", shopping.getId(), shopping.getTitle()));
             content.setText(String.format("content: %s, isCompleted: %s",
                     shopping.getContent(), shopping.isCompleted()));
+
+            complete.setChecked(shopping.isCompleted());
 
             complete.setOnCheckedChangeListener(
                     (compoundButton, b) -> listener.onCheckClicked(shopping.getId(), b));

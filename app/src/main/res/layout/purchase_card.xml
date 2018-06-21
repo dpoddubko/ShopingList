@@ -41,7 +41,7 @@
                 android:layout_toRightOf="@+id/shopping_photo" />
 
             <CheckBox
-                android:id="@+id/complete_chb_item"
+                android:id="@+id/shopping_complete_chb"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
